@@ -113,31 +113,27 @@ class Extract {
   }
 
   Future<String> _translateToEnglish(String text) async {
-    final uri = Uri.parse(
-        'https://api.mymemory.translated.net/get?q=${Uri.encodeComponent(text)}&langpair=ar|en');
     stderr.write('Translating "$text" to English...\n');
+    final response = await http.post(
+      Uri.parse('https://libretranslate.com/translate'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'q': text,
+        'source': 'ar',
+        'target': 'en',
+        'format': 'text',
+      }),
+    );
 
-    final response = await http.get(uri);
+    // final response = await http.get(uri);
 
     if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      final translatedText = data['responseData']['translatedText'];
-      return translatedText ?? text;
+      final data = jsonDecode(response.body);
+
+      return data['translatedText'] ?? text;
     } else {
       print('Translation failed for "$text"');
       return text;
     }
-  }
-
-  Future<String> translateToEnglish(String text) async {
-    final uri = Uri.parse(
-        'https://api.mymemory.translated.net/get?q=$text&langpair=ar|en');
-    final response = await http.get(uri);
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final translated = data['responseData']['translatedText'] ?? text;
-      return translated;
-    }
-    return text;
   }
 }
