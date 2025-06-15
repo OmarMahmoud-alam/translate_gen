@@ -18,7 +18,7 @@ Future<void> main(List<String> args) async {
 
     final extractor = await Extract.create(folderPath: path);
     final strings = await extractor.extractStringsFromFolder();
-    final map = extractor.generateTranslationMap(strings);
+    final map = await extractor.generateTranslationMap(strings);
     await extractor.saveTranslations(map, 'assets/translationsHelper/en.json');
   } on GeneratorException catch (e) {
     exitWithError(e.message);

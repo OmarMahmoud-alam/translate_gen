@@ -60,38 +60,30 @@ class Replace {
     var updatedContent = originalContent;
     bool changed = false;
 
-    // First, replace existing values in replaceMap with {key}
     replaceMap.forEach((key, value) {
-      final placeholder = rules.key.replaceAll('{key}', key); // e.g., '{key}'
-      if (updatedContent.contains(value)) {
-        updatedContent = updatedContent.replaceAll(value, placeholder);
+      final placeholder = rules.key.replaceAll('{key}', key); // e.g., {send}
+
+      final singleQuoted = "'$value'";
+      final doubleQuoted = '"$value"';
+
+      if (updatedContent.contains(singleQuoted)) {
+        updatedContent = updatedContent.replaceAll(singleQuoted, placeholder);
+        changed = true;
+      }
+
+      if (updatedContent.contains(doubleQuoted)) {
+        updatedContent = updatedContent.replaceAll(doubleQuoted, placeholder);
         changed = true;
       }
     });
 
-    // Then apply regex extractFilter to find new strings to add
-    /*  for (var regex in rules.extractFilter) {
-   final matches = regex.allMatches(originalContent).toList();
-
-      for (final match in matches) {
-        final fullMatch = match.group(0)!;
-        final innerText = match.group(1)!;
-
-        if (fullMatch.contains('{')) continue; // Skip already processed
-
-        final key = replaceMap[innerText] ?? _generateKey(innerText);
-        final replacement = rules.key.replaceAll('{key}', key);
-
-        if (!replaceMap.containsKey(innerText)) {
-          replaceMap[innerText] = key;
-        }
-
-        updatedContent = updatedContent.replaceAll(fullMatch, replacement);
-        changed = true;
-      }
-    } */
-
     if (changed) {
+      for (final import in rules.import) {
+        if (!updatedContent.contains(import)) {
+          updatedContent = "$import\n$updatedContent";
+          //   continue; // Insert only once
+        }
+      }
       await file.writeAsString(updatedContent);
       print('Updated: ${file.path}');
     }

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:path/path.dart' as p;
 import 'package:translatehelper/src/extract/exception_rules.dart';
+import 'package:http/http.dart' as http;
 
 class Extract {
   String baseDir;
@@ -71,13 +72,29 @@ class Extract {
     return extractedStrings;
   }
 
-  Map<String, String> generateTranslationMap(List<String> strings) {
+  Future<Map<String, String>> generateTranslationMap(
+      List<String> strings) async {
     final map = <String, String>{};
+
     for (final s in strings) {
-      final key = s.replaceAll(RegExp(r'\s+'), '').toLowerCase();
+      String key;
+
+      if (_isArabic(s)) {
+        key = await _translateToEnglish(s);
+      } else {
+        key = s;
+      }
+
+      key = key.replaceAll(RegExp(r'\s+'), '_').toLowerCase();
       map[key] = s;
     }
+
     return map;
+  }
+
+  bool _isArabic(String text) {
+    final arabicRegex = RegExp(r'[^\u0621-\u064A0-9a-zA-Z]+');
+    return arabicRegex.hasMatch(text);
   }
 
   Future<void> saveTranslations(
@@ -93,5 +110,34 @@ class Extract {
     final combined = {...existing, ...translations};
 
     await file.writeAsString(JsonEncoder.withIndent('  ').convert(combined));
+  }
+
+  Future<String> _translateToEnglish(String text) async {
+    final uri = Uri.parse(
+        'https://api.mymemory.translated.net/get?q=${Uri.encodeComponent(text)}&langpair=ar|en');
+    stderr.write('Translating "$text" to English...\n');
+
+    final response = await http.get(uri);
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final translatedText = data['responseData']['translatedText'];
+      return translatedText ?? text;
+    } else {
+      print('Translation failed for "$text"');
+      return text;
+    }
+  }
+
+  Future<String> translateToEnglish(String text) async {
+    final uri = Uri.parse(
+        'https://api.mymemory.translated.net/get?q=$text&langpair=ar|en');
+    final response = await http.get(uri);
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final translated = data['responseData']['translatedText'] ?? text;
+      return translated;
+    }
+    return text;
   }
 }

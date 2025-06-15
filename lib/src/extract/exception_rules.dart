@@ -3,6 +3,7 @@ class ExceptionRules {
   List<String> lineExceptions;
   List<String> contentExceptions;
   List<String> folderExceptions;
+  List<String> import;
   List<String> extractFilter;
   String key;
   String keyWithVariable;
@@ -12,6 +13,7 @@ class ExceptionRules {
     required this.lineExceptions,
     required this.contentExceptions,
     required this.folderExceptions,
+    required this.import,
     required this.extractFilter,
     required this.key,
     required this.keyWithVariable,
@@ -23,6 +25,7 @@ class ExceptionRules {
       lineExceptions: List<String>.from(json['lineExceptions'] ?? []),
       contentExceptions: List<String>.from(json['contentExceptions'] ?? []),
       folderExceptions: List<String>.from(json['folderExceptions'] ?? []),
+      import: List<String>.from(json['import'] ?? []),
       extractFilter: List<String>.from(json['extractFilter'] ?? []),
       key: json['key'] ?? '',
       keyWithVariable: json['keyWithVariable'] ?? '',
