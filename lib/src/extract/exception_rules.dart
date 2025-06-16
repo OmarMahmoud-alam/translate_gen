@@ -4,7 +4,7 @@ class ExceptionRules {
   List<String> contentExceptions;
   List<String> folderExceptions;
   List<String> import;
-  List<String> extractFilter;
+  List<RegExp> extractFilter;
   String key;
   String keyWithVariable;
 
@@ -26,10 +26,9 @@ class ExceptionRules {
       contentExceptions: List<String>.from(json['contentExceptions'] ?? []),
       folderExceptions: List<String>.from(json['folderExceptions'] ?? []),
       import: List<String>.from(json['import'] ?? []),
-      extractFilter: List<String>.from(json['extractFilter'] ?? []),
+      extractFilter: List<RegExp>.from(json['extractFilter'] ?? []),
       key: json['key'] ?? '',
       keyWithVariable: json['keyWithVariable'] ?? '',
     );
   }
-  
 }

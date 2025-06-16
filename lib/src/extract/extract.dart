@@ -17,14 +17,123 @@ class Extract {
   }
 
   static Future<ExceptionRules> loadExceptionRules(String baseDir) async {
-    final file = File(p.join('assets', 'translationsHelper', 'prepaire.json'));
-    if (!await file.exists()) {
-      throw Exception('prepaire.json not found at ${file.path}');
+    try {
+      final file =
+          File(p.join('assets', 'translationsHelper', 'prepaire.dart'));
+      if (!await file.exists()) {
+        throw Exception('prepaire.dart not found at ${file.path}');
+      }
+
+      final content = await file.readAsString();
+      return _parseDartConfig(content);
+      //final jsonMap = json.decode(content);
+      // return ExceptionRules.fromJson(jsonMap);}
+    } catch (e, trace) {
+      stderr.write(trace);
+      throw Exception('Failed to load exception rules: $e');
+    }
+  }
+
+  static ExceptionRules _parseDartConfig(String dartCode) {
+    // Extract the ExceptionRules constructor arguments
+    final startIndex = dartCode.indexOf('ExceptionRules(');
+    if (startIndex == -1)
+      throw Exception('ExceptionRules not found in Dart file');
+
+    final endIndex = dartCode.lastIndexOf(');');
+    if (endIndex == -1)
+      throw Exception('Malformed ExceptionRules in Dart file');
+
+    final argsString =
+        dartCode.substring(startIndex + 'ExceptionRules('.length, endIndex);
+
+    // Convert to a Map (now handles RegExp and lists properly)
+    final argsMap = _parseDartArgsToMap(argsString);
+
+    return ExceptionRules.fromJson(argsMap);
+  }
+
+  static Map<String, dynamic> _parseDartArgsToMap(String argsString) {
+    // This is a simplified parser (for exact parsing, consider using `package:analyzer`)
+    final argsMap = <String, dynamic>{};
+
+    // Example: Split by commas (naive approach)
+    final argPairs = argsString.split(',');
+    for (final pair in argPairs) {
+      final parts = pair.split(':');
+      if (parts.length != 2) continue;
+
+      final key = parts[0].trim();
+      final value = parts[1].trim();
+
+      // Basic parsing (extend for lists, RegExp, etc.)
+      if (value.startsWith('[') &&
+          value.endsWith(']') &&
+          key != 'extractFilter') {
+        // Parse lists
+        final items = value
+            .substring(1, value.length - 1)
+            .split(',')
+            .map((e) => e.trim())
+            .toList();
+
+        argsMap[key] = items;
+      } else if (key == 'extractFilter') {
+        // Parse RegExp
+        final items = value
+            .substring(1, value.length - 1)
+            .split('),')
+            .map((e) => _parseRegExp(e.trim()))
+            .toList();
+        argsMap[key] = items;
+      } else {
+        argsMap[key] = value;
+      }
+      if (key == 'extractFilter') {
+        stderr.write(argsMap[key]);
+      }
     }
 
-    final content = await file.readAsString();
-    final jsonMap = json.decode(content);
-    return ExceptionRules.fromJson(jsonMap);
+    return argsMap;
+  }
+
+  static RegExp _parseRegExp(String regExpStr) {
+    // Extract inner content: RegExp( ... )
+    final innerContent =
+        regExpStr.substring('RegExp('.length, regExpStr.length - 1).trim();
+    final parts = innerContent.split(',');
+    final innerContentList = parts.map((e) => e.trim()).toList();
+    stderr.write(innerContent);
+    // Check for raw string (r'...') or normal string ('...')
+
+    if (innerContentList.isEmpty) {
+      throw FormatException('Invalid RegExp pattern: $regExpStr');
+    }
+
+    final pattern = innerContentList[0];
+    final flagsPart = innerContentList.sublist(1);
+
+    // Parse flags (multiLine: true, caseSensitive: false, etc.)
+    bool multiLine = false;
+    bool caseSensitive = true;
+    bool unicode = false;
+    bool dotAll = false;
+
+   
+      for (final flag in flagsPart) {
+        final parts = flag.split(':').map((e) => e.trim()).toList();
+        
+      
+      }
+    
+
+    return RegExp(
+      pattern,
+      multiLine: multiLine,
+      caseSensitive: caseSensitive,
+      unicode: unicode,
+      dotAll: dotAll,
+    );
   }
 
   Future<List<String>> extractStringsFromFolder() async {
@@ -58,7 +167,7 @@ class Extract {
       }
 
       final matches = rules.extractFilter.expand((filter) {
-        final regExp = RegExp(filter, multiLine: true);
+        final regExp = filter;
         return regExp.allMatches(line).map((m) => m.group(1) ?? '');
       });
 
@@ -114,24 +223,16 @@ class Extract {
 
   Future<String> _translateToEnglish(String text) async {
     stderr.write('Translating "$text" to English...\n');
-    final response = await http.post(
-      Uri.parse('https://libretranslate.com/translate'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'q': text,
-        'source': 'ar',
-        'target': 'en',
-        'format': 'text',
-      }),
-    );
-
-    // final response = await http.get(uri);
-
+    final uri = Uri.parse(
+        'https://api.mymemory.translated.net/get?q=$text&langpair=ar|en');
+    final response = await http.get(uri);
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-
-      return data['translatedText'] ?? text;
+      final translated = data['responseData']['translatedText'] ?? text;
+      return translated;
     } else {
+      stderr
+          .write('Translation failed for "$text"\n${response.body.toString()}');
       print('Translation failed for "$text"');
       return text;
     }
