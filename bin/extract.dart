@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:translatehelper/src/extract/extract.dart';
 import 'package:translatehelper/src/utils/generator/generator_exception.dart';
 import 'package:translatehelper/src/prepaire_file.dart/create_prepaire_file.dart';
@@ -22,7 +24,8 @@ Future<void> main(List<String> args) async {
     await extractor.saveTranslations(map, 'assets/translationsHelper/en.json');
   } on GeneratorException catch (e) {
     exitWithError(e.message);
-  } catch (e) {
+  } catch (e, trace) {
+    stderr.write(trace);
     exitWithError('Failed to generate localization files.\n$e');
   }
 }

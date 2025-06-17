@@ -1,39 +1,117 @@
-<!-- 
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# TranslateHelper Package
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages). 
+This package provides tools to assist with translation tasks in Flutter projects, including preparing configuration files, extracting translatable strings, and replacing them based on a configuration.
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages). 
--->
+## Installation
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+Add the following to your `pubspec.yaml`:
 
-## Features
-
-TODO: List what your package can do. Maybe include images, gifs, or videos.
-
-## Getting started
-
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
-
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder. 
-
-```dart
-const like = 'sample';
+```yaml
+dependencies:
+  translatehelper: ^0.1.0
 ```
 
-## Additional information
+Run `flutter pub get` to install the package.
 
-TODO: Tell users more about the package: where to find more information, how to 
-contribute to the package, how to file issues, what response they can expect 
-from the package authors, and more.
+## Commands
+
+### 1. Prepare Configuration
+
+The `prepare` command generates a configuration file (`prepare.dart`) and an empty `replace.json` file under the `assets/translatehelper` directory.
+
+**Command:**
+```bash
+flutter pub run translatehelper:prepare
+```
+
+**Output:**
+
+- Creates `assets/translatehelper/prepare.dart` with the following content:
+
+```dart
+import 'package:translatehelper/src/extract/exception_rules.dart';
+
+final translationConfig = ExceptionRules(
+  textExceptions: ['import'],
+  lineExceptions: ['line_start_to_skip'],
+  contentExceptions: ['substring_to_skip'],
+  folderExceptions: [''],
+  extractFilter: [
+    RegExp(r"'[^']*[\u0600-\u06FF][^']*'"),
+    RegExp(r'"[^"]*[\u0600-\u06FF][^"]*"')
+  ],
+  import: ["import 'package:easy_localization/easy_localization.dart';"],
+  key: "'{key}'.tr()",
+  keyWithVariable: "'{key}'.tr(args: [{args}])",
+  translate: true,
+);
+```
+
+- Creates `assets/translatehelper/replace.json` as an empty JSON file:
+
+```json
+{}
+```
+
+**Purpose:** This command sets up the necessary configuration for the translation process, defining rules for exceptions, filters for extracting translatable strings (e.g., Arabic text), and the format for translation keys.
+
+### 2. Extract Translatable Strings
+
+The `extract` command scans the specified path (or default path) for translatable strings and generates key-value pairs to be stored in `replace.json`.
+
+**Command:**
+```bash
+flutter pub run translatehelper:extract [--path='lib/core']
+```
+
+**Parameters:**
+- `--path`: Optional. Specifies the directory to scan for translatable strings. Defaults to `lib/core` if not provided.
+
+**Output:**
+- Updates `assets/translatehelper/en2.json` with extracted strings in the format:
+
+```json
+{
+  "key1": "translatable string 1",
+  "key2": "translatable string 2"
+}
+```
+
+**Purpose:** This command identifies strings (e.g., Arabic text matching the regex patterns in `prepare.dart`) and prepares them for translation by storing them in `replace.json`.
+
+### 3. Replace Strings
+
+The `replace` command replaces strings in the specified path (or default path) with translation keys based on the content of `replace.json`.
+
+**Command:**
+```bash
+flutter pub run translatehelper:replace [--path='lib/core']
+```
+
+**Parameters:**
+- `--path`: Optional. Specifies the directory where strings will be replaced. Defaults to `lib/core` if not provided.
+
+**Behavior:**
+- Reads `replace.json` to get key-value pairs
+- Replaces matching strings in the specified path with translation keys in the format defined in `prepare.dart` (e.g., `'{key}'.tr()` or `'{key}'.tr(args: [{args}])` for strings with variables)
+- Adds necessary import statements (e.g., `import 'package:easy_localization/easy_localization.dart';`) to files as specified in the configuration
+
+**Purpose:** This command automates the replacement of hard-coded strings with translation keys, enabling easy localization using the `easy_localization` package.
+
+## Directory Structure
+
+After running the `prepare` command, the following structure is created:
+
+```
+assets/
+└── translatehelper/
+    ├── en2.json
+    ├── prepare.dart
+    └── replace.json
+```
+
+## Notes
+
+- The `extractFilter` in `prepare.dart` is configured to detect Arabic strings (Unicode range `\u0600-\u06FF`). Modify the regex patterns to support other languages if needed
+- The `en2.json` file is overwritten during the `extract` command, so back up any manual changes before running it
+- Before running the `replace` command, make sure `replace.json` has the following content (with at least an empty object `{}`):

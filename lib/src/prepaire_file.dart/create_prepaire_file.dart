@@ -35,12 +35,13 @@ final translationConfig = ExceptionRules(
   contentExceptions: ['substring_to_skip'],
   folderExceptions: [''],
   extractFilter: [
-    RegExp(r"'[\\u0600-\\u06FF].*?'", multiLine: true),
-    RegExp(r'"[\\u0600-\\u06FF].*?"', multiLine: true),
+    RegExp(r"'[^']*[\u0600-\u06FF][^']*'"),
+    RegExp(r'"[^"]*[\u0600-\u06FF][^"]*"')
   ],
   import: ["import 'package:easy_localization/easy_localization.dart';"],
   key: "'{key}'.tr()",
   keyWithVariable: "'{key}'.tr(args: [{args}])",
+  translate: true,
 );
 ''';
 

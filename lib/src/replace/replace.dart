@@ -55,24 +55,54 @@ class Replace {
         .any((folder) => filePath.contains('/$folder/'));
   }
 
+  List<String> extractVariables(String value) {
+    final variableRegex =
+        RegExp(r'\$\{(\w+(?:\.\w+)*)\}|\$(\w+)', multiLine: true);
+    final matches = <String>[];
+
+    for (final match in variableRegex.allMatches(value)) {
+      final variable = match.group(1) ?? match.group(2);
+      if (variable != null) {
+        matches.add(variable);
+      }
+    }
+
+    return matches;
+  }
+
   Future<void> _processFile(File file, Map<String, String> replaceMap) async {
     final originalContent = await file.readAsString();
     var updatedContent = originalContent;
     bool changed = false;
 
     replaceMap.forEach((key, value) {
+      final variableMatches = extractVariables(value);
+
       final placeholder = rules.key.replaceAll('{key}', key); // e.g., {send}
 
+      final placeholderWithVariable = rules.keyWithVariable
+          .replaceAll('{key}', key)
+          .replaceAll('{args}', variableMatches.join(','));
       final singleQuoted = "'$value'";
       final doubleQuoted = '"$value"';
 
       if (updatedContent.contains(singleQuoted)) {
-        updatedContent = updatedContent.replaceAll(singleQuoted, placeholder);
+        if (variableMatches.isNotEmpty) {
+          updatedContent =
+              updatedContent.replaceAll(singleQuoted, placeholderWithVariable);
+        } else {
+          updatedContent = updatedContent.replaceAll(singleQuoted, placeholder);
+        }
         changed = true;
       }
 
       if (updatedContent.contains(doubleQuoted)) {
-        updatedContent = updatedContent.replaceAll(doubleQuoted, placeholder);
+        if (variableMatches.isNotEmpty) {
+          updatedContent =
+              updatedContent.replaceAll(doubleQuoted, placeholderWithVariable);
+        } else {
+          updatedContent = updatedContent.replaceAll(doubleQuoted, placeholder);
+        }
         changed = true;
       }
     });

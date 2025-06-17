@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:path/path.dart' as p;
 import 'package:translatehelper/src/extract/exception_rules.dart';
 import 'package:http/http.dart' as http;
+import 'package:analyzer/dart/analysis/utilities.dart';
+import 'package:analyzer/dart/ast/ast.dart';
 
 class Extract {
   String baseDir;
@@ -25,16 +27,32 @@ class Extract {
       }
 
       final content = await file.readAsString();
-      return _parseDartConfig(content);
-      //final jsonMap = json.decode(content);
-      // return ExceptionRules.fromJson(jsonMap);}
+      final result = parseString(content: content);
+      final unit = result.unit;
+
+      for (final declaration in unit.declarations) {
+        if (declaration is TopLevelVariableDeclaration) {
+          for (final variable in declaration.variables.variables) {
+            final name = variable.name.lexeme;
+            if (name == 'translationConfig') {
+              final initializer = variable.initializer;
+              if (initializer != null) {
+                //  stderr.write(initializer.toSource());
+                return ExceptionRules.fromSourceString(initializer.toSource());
+              }
+            }
+          }
+        }
+      }
+
+      throw Exception('can not find translationConfig');
     } catch (e, trace) {
       stderr.write(trace);
       throw Exception('Failed to load exception rules: $e');
     }
   }
 
-  static ExceptionRules _parseDartConfig(String dartCode) {
+  /*static  ExceptionRules _parseDartConfig(String dartCode) {
     // Extract the ExceptionRules constructor arguments
     final startIndex = dartCode.indexOf('ExceptionRules(');
     if (startIndex == -1)
@@ -119,13 +137,9 @@ class Extract {
     bool unicode = false;
     bool dotAll = false;
 
-   
-      for (final flag in flagsPart) {
-        final parts = flag.split(':').map((e) => e.trim()).toList();
-        
-      
-      }
-    
+    for (final flag in flagsPart) {
+      final parts = flag.split(':').map((e) => e.trim()).toList();
+    }
 
     return RegExp(
       pattern,
@@ -136,6 +150,7 @@ class Extract {
     );
   }
 
+ */
   Future<List<String>> extractStringsFromFolder() async {
     List<String> strings = [];
 
@@ -152,6 +167,7 @@ class Extract {
         ));
       }
     }
+    // stderr.write("extractedStrings  $strings");
 
     return strings;
   }
@@ -159,17 +175,24 @@ class Extract {
   Future<List<String>> extractStringsFromFile(File file) async {
     final content = await file.readAsLines();
     final extractedStrings = <String>[];
-
+    //stderr.write(rules.extractFilter);
     for (final line in content) {
       if (line.startsWith('import') ||
           rules.lineExceptions.any((exc) => line.startsWith(exc))) {
         continue;
       }
+      Iterable<String> matches;
 
-      final matches = rules.extractFilter.expand((filter) {
-        final regExp = filter;
-        return regExp.allMatches(line).map((m) => m.group(1) ?? '');
-      });
+      if (rules.extractFilter.isEmpty) {
+        final regex = RegExp(r'''(["'])(?:(?=(\\?))\2.)*?\1''');
+        matches = regex.allMatches(line).map((m) => m.group(0)!).toList();
+      } else {
+        matches = rules.extractFilter.expand((filter) {
+          return filter
+              .allMatches(line)
+              .map((m) => m.groupCount >= 1 ? m.group(1)! : m.group(0)!);
+        });
+      }
 
       final filtered = matches.where((str) =>
           !rules.textExceptions.contains(str) &&
@@ -186,23 +209,24 @@ class Extract {
     final map = <String, String>{};
 
     for (final s in strings) {
+      final str = s.trim().replaceAll(RegExp(r'''^['"]|['"]$'''), '');
       String key;
 
-      if (_isArabic(s)) {
-        key = await _translateToEnglish(s);
+      if (_isArabic(str) && rules.translate) {
+        key = await _translateToEnglish(str);
       } else {
-        key = s;
+        key = str;
       }
 
       key = key.replaceAll(RegExp(r'\s+'), '_').toLowerCase();
-      map[key] = s;
+      map[key] = str;
     }
 
     return map;
   }
 
   bool _isArabic(String text) {
-    final arabicRegex = RegExp(r'[^\u0621-\u064A0-9a-zA-Z]+');
+    final arabicRegex = RegExp(r'[\u0621-\u064A]');
     return arabicRegex.hasMatch(text);
   }
 
@@ -231,9 +255,9 @@ class Extract {
       final translated = data['responseData']['translatedText'] ?? text;
       return translated;
     } else {
-      stderr
-          .write('Translation failed for "$text"\n${response.body.toString()}');
-      print('Translation failed for "$text"');
+      //  stderr
+      //    .write('Translation failed for "$text"\n${response.body.toString()}');
+      print('Translation failed ${response.body.toString()}');
       return text;
     }
   }
