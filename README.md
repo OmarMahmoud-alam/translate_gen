@@ -7,10 +7,17 @@ This package provides tools to assist with translation tasks in Flutter projects
 Add the following to your `pubspec.yaml`:
 
 ```yaml
-dependencies:
-  translate_kit: ^0.1.0
+dev_dependencies:
+  translate_kit: ^1.0.0
 ```
+or 
 
+```yaml
+dev_dependencies:
+  translate_kit:
+    git:
+      url: https://github.com/OmarMahmoud-alam/translate_kit.git
+```
 Run `flutter pub get` to install the package.
 
 ## Commands
