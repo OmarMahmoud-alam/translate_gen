@@ -27,7 +27,7 @@ String _prettyJson(Map<String, dynamic> json) {
 
 void writeDartConfig(String path) {
   final content = '''
-import 'package:translatehelper/src/extract/exception_rules.dart';
+import 'package:translate_kit/src/extract/exception_rules.dart';
 
 final translationConfig = ExceptionRules(
   textExceptions: ['import'],

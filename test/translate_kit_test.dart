@@ -1,4 +1,4 @@
-import 'package:translatehelper/translatehelper.dart';
+import 'package:translate_kit/translate_kit.dart';
 import 'package:test/test.dart';
 
 void main() {

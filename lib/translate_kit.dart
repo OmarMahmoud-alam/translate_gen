@@ -3,6 +3,6 @@
 /// More dartdocs go here.
 library;
 
-export 'src/translatehelper_base.dart';
+export 'src/translate_kit_base.dart';
 
 // TODO: Export any libraries intended for clients of this package.

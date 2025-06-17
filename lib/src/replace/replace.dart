@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:path/path.dart' as p;
-import 'package:translatehelper/src/extract/exception_rules.dart';
+import 'package:translate_kit/src/extract/exception_rules.dart';
 import 'package:yaml/yaml.dart';
 
 class Replace {

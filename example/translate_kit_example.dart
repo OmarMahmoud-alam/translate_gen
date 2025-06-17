@@ -1,4 +1,4 @@
-import 'package:translatehelper/translatehelper.dart';
+import 'package:translate_kit/translate_kit.dart';
 
 void main() {
   var awesome = Awesome();

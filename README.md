@@ -1,4 +1,4 @@
-# TranslateHelper Package
+# translate_kit Package
 
 This package provides tools to assist with translation tasks in Flutter projects, including preparing configuration files, extracting translatable strings, and replacing them based on a configuration.
 
@@ -8,7 +8,7 @@ Add the following to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  translatehelper: ^0.1.0
+  translate_kit: ^0.1.0
 ```
 
 Run `flutter pub get` to install the package.
@@ -17,19 +17,19 @@ Run `flutter pub get` to install the package.
 
 ### 1. Prepare Configuration
 
-The `prepare` command generates a configuration file (`prepare.dart`) and an empty `replace.json` file under the `assets/translatehelper` directory.
+The `prepare` command generates a configuration file (`prepare.dart`) and an empty `replace.json` file under the `assets/translate_kit` directory.
 
 **Command:**
 ```bash
-flutter pub run translatehelper:prepare
+flutter pub run translate_kit:prepare
 ```
 
 **Output:**
 
-- Creates `assets/translatehelper/prepare.dart` with the following content:
+- Creates `assets/translate_kit/prepare.dart` with the following content:
 
 ```dart
-import 'package:translatehelper/src/extract/exception_rules.dart';
+import 'package:translate_kit/src/extract/exception_rules.dart';
 
 final translationConfig = ExceptionRules(
   textExceptions: ['import'],
@@ -47,7 +47,7 @@ final translationConfig = ExceptionRules(
 );
 ```
 
-- Creates `assets/translatehelper/replace.json` as an empty JSON file:
+- Creates `assets/translate_kit/replace.json` as an empty JSON file:
 
 ```json
 {}
@@ -61,14 +61,14 @@ The `extract` command scans the specified path (or default path) for translatabl
 
 **Command:**
 ```bash
-flutter pub run translatehelper:extract [--path='lib/core']
+flutter pub run translate_kit:extract [--path='lib/core']
 ```
 
 **Parameters:**
 - `--path`: Optional. Specifies the directory to scan for translatable strings. Defaults to `lib/core` if not provided.
 
 **Output:**
-- Updates `assets/translatehelper/en2.json` with extracted strings in the format:
+- Updates `assets/translate_kit/en2.json` with extracted strings in the format:
 
 ```json
 {
@@ -85,7 +85,7 @@ The `replace` command replaces strings in the specified path (or default path) w
 
 **Command:**
 ```bash
-flutter pub run translatehelper:replace [--path='lib/core']
+flutter pub run translate_kit:replace [--path='lib/core']
 ```
 
 **Parameters:**
@@ -104,7 +104,7 @@ After running the `prepare` command, the following structure is created:
 
 ```
 assets/
-└── translatehelper/
+└── translate_kit/
     ├── en2.json
     ├── prepare.dart
     └── replace.json

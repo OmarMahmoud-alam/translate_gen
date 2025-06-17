@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:translatehelper/src/extract/extract.dart';
-import 'package:translatehelper/src/utils/generator/generator_exception.dart';
-import 'package:translatehelper/src/prepaire_file.dart/create_prepaire_file.dart';
-import 'package:translatehelper/src/utils/utils.dart';
+import 'package:translate_kit/src/extract/extract.dart';
+import 'package:translate_kit/src/utils/generator/generator_exception.dart';
+import 'package:translate_kit/src/prepaire_file.dart/create_prepaire_file.dart';
+import 'package:translate_kit/src/utils/utils.dart';
 import 'package:args/args.dart';
 
 Future<void> main(List<String> args) async {
