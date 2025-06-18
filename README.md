@@ -22,19 +22,31 @@ Run `flutter pub get` to install the package.
 
 ## Commands
 
-### 1. Prepare Configuration
+### 1. Prepare Configuration 
 
-The `prepare` command generates a configuration file (`prepare.dart`) and an empty `replace.json` file under the `assets/translate_kit` directory.
+The `prepare` command generates a configuration file (`prepare.dart`) and an empty `replace.json` file under the `assets/translate_kit` directory. You can choose between two configuration types: **normal** or **easy** (for easy_localization package).
 
-**Command:**
+**Command:** 
+
 ```bash
 flutter pub run translate_kit:prepare
 ```
 
-**Output:**
+**Command with Options:**
+
+```bash
+# For normal translation setup
+flutter pub run translate_kit:prepare --type normal
+
+# For easy_localization package setup (default)
+flutter pub run translate_kit:prepare --type easy
+```
+
+**Output:** 
 
 - Creates `assets/translate_kit/prepare.dart` with the following content:
 
+**For Easy Localization (default):**
 ```dart
 import 'package:translate_kit/src/extract/exception_rules.dart';
 
@@ -47,21 +59,48 @@ final translationConfig = ExceptionRules(
     RegExp(r"'[^']*[\u0600-\u06FF][^']*'"),
     RegExp(r'"[^"]*[\u0600-\u06FF][^"]*"')
   ],
-  import: ["import 'package:easy_localization/easy_localization.dart';"],
-  key: "'{key}'.tr()",
-  keyWithVariable: "'{key}'.tr(args: [{args}])",
+  "import": [
+    "import 'package:easy_localization/easy_localization.dart';",
+    "import 'package:{{projectName}}/core/app_strings/locale_keys.dart';"
+  ],
+  "key": " LocaleKeys.{key}.tr()",
+  "keyWithVariable": "LocaleKeys.{key}.tr(args: [{args}])"
   translate: true,
 );
 ```
 
-- Creates `assets/translate_kit/replace.json` as an empty JSON file:
+**For Normal Translation:**
+```dart
+import 'package:translate_kit/src/extract/exception_rules.dart';
+
+final translationConfig = ExceptionRules(
+  textExceptions: ['import'],
+  lineExceptions: ['line_start_to_skip'],
+  contentExceptions: ['substring_to_skip'],
+  folderExceptions: [''],
+  extractFilter: [
+    RegExp(r"'[^']*[\u0600-\u06FF][^']*'"),
+    RegExp(r'"[^"]*[\u0600-\u06FF][^"]*"')
+  ],
+  import: [],
+  key: s.current.{key},
+  keyWithVariable: s.current.{key}({args}), //not work in flutter_localization only in easy_localization
+  translate: true,
+);
+```
+
+- Creates `assets/translate_kit/replace.json` as an empty JSON file: 
 
 ```json
 {}
 ```
 
-**Purpose:** This command sets up the necessary configuration for the translation process, defining rules for exceptions, filters for extracting translatable strings (e.g., Arabic text), and the format for translation keys.
+**Purpose:** 
 
+This command sets up the necessary configuration for the translation process, defining rules for exceptions, filters for extracting translatable strings (e.g., Arabic text), and the format for translation keys. 
+
+- **Easy type**: Configured for use with the `easy_localization` package, including the necessary import and `.tr()` method calls
+- **Normal type**: Basic configuration without external package dependencies, suitable for custom translation implementations
 ### 2. Extract Translatable Strings
 
 The `extract` command scans the specified path (or default path) for translatable strings and generates key-value pairs to be stored in `replace.json`.
