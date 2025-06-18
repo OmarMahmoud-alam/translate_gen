@@ -36,7 +36,7 @@ void showMainHelp() {
       '   of extracting, translating, and replacing text strings in your app.');
   print('');
   print('🚀 USAGE:');
-  print('   dart run translate_kit:<command> [options]');
+  print('   dart run translate_gen:<command> [options]');
   print('');
   print('📋 AVAILABLE COMMANDS:');
   print('   prepare     Generate configuration files');
@@ -47,12 +47,12 @@ void showMainHelp() {
   print('   validate    Validate translation files and configuration');
   print('');
   print('💡 EXAMPLES:');
-  print('   dart run translate_kit:prepare              # Setup configuration');
-  print('   dart run translate_kit:extract              # Extract strings');
-  print('   dart run translate_kit:translate            # Translate strings');
-  print('   dart run translate_kit:replace              # Replace with keys');
+  print('   dart run translate_gen:prepare              # Setup configuration');
+  print('   dart run translate_gen:extract              # Extract strings');
+  print('   dart run translate_gen:translate            # Translate strings');
+  print('   dart run translate_gen:replace              # Replace with keys');
   print('');
   print(
-      '📚 For more information, visit: https://pub.dev/packages/translate_kit');
+      '📚 For more information, visit: https://pub.dev/packages/translate_gen');
   print('');
 }

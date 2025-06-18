@@ -31,7 +31,7 @@ void createPrepaireFiles({String baseDir = '', String type = 'normal'}) async {
 
 void writeEasyLocalizationDartConfig(String path, String projectName) {
   final content = '''
-import 'package:translate_kit/src/extract/exception_rules.dart';
+import 'package:translate_gen/src/extract/exception_rules.dart';
 
 final translationConfig = ExceptionRules(
   textExceptions: ['import'],
@@ -60,7 +60,7 @@ final translationConfig = ExceptionRules(
 
 void writeNormalLocalizationDartConfig(String path) {
   final content = '''
-import 'package:translate_kit/src/extract/exception_rules.dart';
+import 'package:translate_gen/src/extract/exception_rules.dart';
 
 final translationConfig = ExceptionRules(
   textExceptions: ['import'],

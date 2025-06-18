@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:path/path.dart' as p;
-import 'package:translate_kit/src/extract/exception_rules.dart';
+import 'package:translate_gen/src/extract/exception_rules.dart';
 import 'package:http/http.dart' as http;
 import 'package:analyzer/dart/analysis/utilities.dart';
 import 'package:analyzer/dart/ast/ast.dart';

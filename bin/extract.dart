@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:translate_kit/src/extract/extract.dart';
-import 'package:translate_kit/src/utils/generator/generator_exception.dart';
-import 'package:translate_kit/src/utils/utils.dart';
+import 'package:translate_gen/src/extract/extract.dart';
+import 'package:translate_gen/src/utils/generator/generator_exception.dart';
+import 'package:translate_gen/src/utils/utils.dart';
 import 'package:args/args.dart';
 
 Future<void> main(List<String> args) async {

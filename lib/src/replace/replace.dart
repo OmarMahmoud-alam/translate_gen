@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:path/path.dart' as p;
-import 'package:translate_kit/src/extract/exception_rules.dart';
+import 'package:translate_gen/src/extract/exception_rules.dart';
 
 class Replace {
   final String baseDir;
@@ -117,6 +117,4 @@ class Replace {
       print('Updated: ${file.path}');
     }
   }
-
- 
 }
