@@ -157,53 +157,43 @@ class Extract {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       final translated = data['responseData']['translatedText'] ?? text;
-      return translated;
+      return generateShortKey2(translated);
     } else {
       //  stderr
       //    .write('Translation failed for "$text"\n${response.body.toString()}');
       print('Translation failed ${response.body.toString()}');
-      return generateShortKey(text);
+      return (text);
     }
   }
 
-  String generateShortKey(String text) {
-    // Clean text: remove $, { }, ., :, etc.
-    final cleaned = text
-        .replaceAll(RegExp(r'[\$\{\}\.\:\(\)\[\]]'), '')
-        .replaceAll(RegExp(r'[^\w\s]'), '');
+  String generateShortKey2(String text) {
+    // Step 1: Remove variables like $maxImages or ${...}
+    text = text.replaceAll(RegExp(r'\$\w+'), '');
+    text = text.replaceAll(RegExp(r'[{}]'), '');
 
-    // Lowercase + split
-    final words = cleaned.trim().toLowerCase().split(RegExp(r'\s+'));
+    // Step 2: Remove all special characters, including . , : etc.
+    text = text.replaceAll(RegExp(r'[^\w\s]'), '');
 
-    // Common stopwords to skip
+    // Step 3: Lowercase and split into words
+    final words = text.trim().toLowerCase().split(RegExp(r'\s+|_+'));
+
+    // Step 4: Filter out common stopwords
     const stopwords = {
-      'a',
-      'the',
-      'is',
-      'to',
-      'of',
-      'and',
-      'in',
-      'on',
-      'up',
       'only',
-      'can',
-      'you'
+      'you',
+      'this',
+      'that',
     };
+    final filtered =
+        words.where((w) => w.isNotEmpty && !stopwords.contains(w)).toList();
 
-    // Keep important words
-    final filtered = words.where((w) => !stopwords.contains(w)).toList();
+    // Step 5: Join the first 2–3 important words
+    String joined = filtered.take(5).join('_');
 
-    // Join up to 3 words
-    String joined = filtered.take(3).join('_');
-
-    // If too long or empty, fallback to hash
-    if (joined.isEmpty || joined.length > 12) {
-      final bytes = utf8.encode(text);
-      final digest = md5.convert(bytes).toString(); // 32 chars
-      return digest.substring(0, 8);
-    }
-
+    // Step 6: Fallback to short hash if empty or too long
+    /*  if (joined.isEmpty || joined.length > 12) {
+      return md5.convert(utf8.encode(text)).toString().substring(0, 8);
+    } */
     return joined;
   }
 }
