@@ -19,19 +19,15 @@ void createPrepaireFiles({String baseDir = '', String type = 'normal'}) async {
 
     final replaceFile = File(replacePath);
     replaceFile.writeAsStringSync('{"projectName": "$projectName"}');
-    if (type != 'easy') {
-      writeNormalLocalizationDartConfig(prepairePath);
-    } else {
+    if (type != 'normal') {
       writeEasyLocalizationDartConfig(prepairePath, projectName);
+    } else {
+      writeNormalLocalizationDartConfig(prepairePath);
     }
     stderr.writeln('✅ Prepaire files created at: ${dir.path}');
   } catch (e) {
     stderr.writeln('❌ Error creating prepaire files: $e');
   }
-}
-
-String _prettyJson(Map<String, dynamic> json) {
-  return JsonEncoder.withIndent('  ').convert(json);
 }
 
 void writeEasyLocalizationDartConfig(String path, String projectName) {
@@ -44,15 +40,16 @@ final translationConfig = ExceptionRules(
   contentExceptions: ['substring_to_skip'],
   folderExceptions: [''],
   extractFilter: [
-    RegExp(r"'[^']*[\u0600-\u06FF][^']*'"),
-    RegExp(r'"[^"]*[\u0600-\u06FF][^"]*"')
+    RegExp(r"'[^']*[\u0600-\u06FF][^']*'"), //  RegExp(r"'[^']*[\u0600-\u06FF][^']*'"),
+    RegExp(r'"[^"]*[\u0600-\u06FF][^"]*"') //    RegExp(r'"[^"]*[\u0600-\u06FF][^"]*"')
+
   ],
-  "import": [
+  import: [
     "import 'package:easy_localization/easy_localization.dart';",
     "import 'package:$projectName/core/app_strings/locale_keys.dart';"
   ],
-  "key": " LocaleKeys.{key}.tr()",
-  "keyWithVariable": "LocaleKeys.{key}.tr(args: [{args}])"
+  key:  "LocaleKeys.{key}.tr()",
+  keyWithVariable: "LocaleKeys.{key}.tr(args: [{args}])",
   translate: true,
   extractOutput: 'replace.json',
 
@@ -72,16 +69,16 @@ final translationConfig = ExceptionRules(
   contentExceptions: ['substring_to_skip'],
   folderExceptions: [''],
   extractFilter: [
-    RegExp(r"'[^']*[\u0600-\u06FF][^']*'"),
-    RegExp(r'"[^"]*[\u0600-\u06FF][^"]*"')
+    RegExp(r"'[^']*[\u0600-\u06FF][^']*'"),//  RegExp(r"'[^']*[\u0600-\u06FF][^']*'"),
+    RegExp(r'"[^"]*[\u0600-\u06FF][^"]*"')//    RegExp(r'"[^"]*[\u0600-\u06FF][^"]*"')
   ],
-  "import": [
+  import: [
     "import 'package:flutter_localization/flutter_localization.dart';",
   ],
-  "key": " s.current.{key}",
-  "keyWithVariable": "s.current.{key}({args})", //not work in flutter_localization only in easy_localization
+  key:  "s.current.{key}",
+  keyWithVariable:" s.current.{key}({args})", //not work in flutter_localization only in easy_localization
   translate: true,
-    extractOutput: 'replace.json',
+ extractOutput: 'replace.json',
 
 );
 ''';

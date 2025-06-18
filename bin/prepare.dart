@@ -6,16 +6,24 @@ import 'package:args/args.dart';
 Future<void> main(List<String> args) async {
   try {
     final parser = ArgParser()
-      ..addOption('type', abbr: 't', help: 'Project base path');
+      ..addOption(
+        'type',
+        abbr: 't',
+        help: 'Configuration type (normal or easy)',
+        allowed: ['normal', 'easy'],
+        defaultsTo: 'easy',
+      );
 
-    final result = parser.parse(args);
-    final path = result['path'] ?? 'normal';
-    if (path == null) {
-      print('Please pass --path=<your_project_path>');
+    final results = parser.parse(args);
+
+    final type = results['type']; // Should work for both -t and --type
+    print('Type: $type');
+    if (type == null) {
+      print('Please pass --type=<your_project_path>');
       return;
     }
 
-    var generator = createPrepaireFiles();
+    var generator = createPrepaireFiles(type: type);
 
     //await generator.generateAsync();
   } on GeneratorException catch (e) {
