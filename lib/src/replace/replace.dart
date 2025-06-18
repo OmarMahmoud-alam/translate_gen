@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:translate_kit/src/extract/exception_rules.dart';
-import 'package:yaml/yaml.dart';
 
 class Replace {
   final String baseDir;
@@ -119,12 +118,5 @@ class Replace {
     }
   }
 
-  String _generateKey(String text) {
-    return text
-        .replaceAll(RegExp(r'[^\u0621-\u064A0-9a-zA-Z]+'),
-            '_') // Keep Arabic, letters, numbers
-        .toLowerCase()
-        .replaceAll(RegExp(r'_+'), '_')
-        .replaceAll(RegExp(r'^_+|_+$'), '');
-  }
+ 
 }

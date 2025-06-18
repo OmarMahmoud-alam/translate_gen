@@ -5,7 +5,6 @@ import 'package:translate_kit/src/extract/exception_rules.dart';
 import 'package:http/http.dart' as http;
 import 'package:analyzer/dart/analysis/utilities.dart';
 import 'package:analyzer/dart/ast/ast.dart';
-import 'package:crypto/crypto.dart';
 
 class Extract {
   String baseDir;

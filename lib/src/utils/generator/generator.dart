@@ -1,4 +1,3 @@
-import 'dart:io';
 /*
 import 'package:asset_generator/src/generator/output.dart';
 import 'package:path/path.dart';

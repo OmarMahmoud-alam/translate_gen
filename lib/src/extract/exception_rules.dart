@@ -1,4 +1,3 @@
-import 'dart:io';
 
 class ExceptionRules {
   List<String> textExceptions;
@@ -78,7 +77,7 @@ class ExceptionRules {
       return source.substring(start + 1, i); // inside brackets
     }
 
-    List<String> _parseStringList(String name) {
+    List<String> parseStringList(String name) {
       final regex = RegExp('$name:\\s*\\[(.*?)\\]', dotAll: true);
       final match = regex.firstMatch(source);
       if (match == null) return [];
@@ -176,7 +175,7 @@ class ExceptionRules {
       return result;
     }
 
-    List<RegExp> _parseRegExpList() {
+    List<RegExp> parseRegExpList() {
       // Match all RegExp(...) anywhere in the source (not just extractFilter)
       final reg = extractBalancedBracketContent(source, 'extractFilter');
       if (reg == null) return [];
@@ -190,29 +189,29 @@ class ExceptionRules {
       return listBody;
     }
 
-    String _parseString(String name) {
+    String parseString(String name) {
       final regex = RegExp('$name:\\s*([\'"])(.*?)\\1', dotAll: true);
       final match = regex.firstMatch(source);
       return match?.group(2) ?? '';
     }
 
-    bool _parseBool(String name) {
+    bool parseBool(String name) {
       final regex = RegExp('$name:\\s*(true|false)', caseSensitive: false);
       final match = regex.firstMatch(source);
-      return match?.group(1)?.trim()?.toLowerCase() == 'true';
+      return match?.group(1)?.trim().toLowerCase() == 'true';
     }
 
     return ExceptionRules(
-      textExceptions: _parseStringList('textExceptions'),
-      lineExceptions: _parseStringList('lineExceptions'),
-      contentExceptions: _parseStringList('contentExceptions'),
-      folderExceptions: _parseStringList('folderExceptions'),
-      extractFilter: _parseRegExpList(),
-      import: _parseStringList('import'),
-      key: _parseString('key'),
-      keyWithVariable: _parseString('keyWithVariable'),
-      extractOutput: _parseString('extractOutput'),
-      translate: _parseBool('translate'),
+      textExceptions: parseStringList('textExceptions'),
+      lineExceptions: parseStringList('lineExceptions'),
+      contentExceptions: parseStringList('contentExceptions'),
+      folderExceptions: parseStringList('folderExceptions'),
+      extractFilter: parseRegExpList(),
+      import: parseStringList('import'),
+      key: parseString('key'),
+      keyWithVariable: parseString('keyWithVariable'),
+      extractOutput: parseString('extractOutput'),
+      translate: parseBool('translate'),
     );
   }
 }

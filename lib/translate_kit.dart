@@ -1,7 +1,7 @@
 /// Support for doing something awesome.
 ///
 /// More dartdocs go here.
-library;
+library translate_kit;
 
 export 'src/translate_kit_base.dart';
 

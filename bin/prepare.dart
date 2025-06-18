@@ -23,7 +23,7 @@ Future<void> main(List<String> args) async {
       return;
     }
 
-    var generator = createPrepaireFiles(type: type);
+    createPrepaireFiles(type: type);
 
     //await generator.generateAsync();
   } on GeneratorException catch (e) {
