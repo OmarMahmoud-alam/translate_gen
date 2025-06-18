@@ -52,7 +52,7 @@ class Replace {
 
   bool _isInIgnoredFolder(String filePath) {
     return rules.folderExceptions
-        .any((folder) => filePath.contains('/$folder/'));
+        .any((folder) => filePath.contains('/$folder'));
   }
 
   List<String> extractVariables(String value) {

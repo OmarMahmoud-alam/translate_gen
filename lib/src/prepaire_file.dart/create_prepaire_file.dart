@@ -54,6 +54,8 @@ final translationConfig = ExceptionRules(
   "key": " LocaleKeys.{key}.tr()",
   "keyWithVariable": "LocaleKeys.{key}.tr(args: [{args}])"
   translate: true,
+  extractOutput: 'replace.json',
+
 );
 ''';
 
@@ -79,6 +81,8 @@ final translationConfig = ExceptionRules(
   "key": " s.current.{key}",
   "keyWithVariable": "s.current.{key}({args})", //not work in flutter_localization only in easy_localization
   translate: true,
+    extractOutput: 'replace.json',
+
 );
 ''';
 

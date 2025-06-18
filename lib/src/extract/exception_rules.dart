@@ -9,6 +9,7 @@ class ExceptionRules {
   List<RegExp> extractFilter;
   String key;
   String keyWithVariable;
+  String extractOutput;
   bool translate;
 
   ExceptionRules({
@@ -20,6 +21,7 @@ class ExceptionRules {
     required this.extractFilter,
     required this.key,
     required this.keyWithVariable,
+    required this.extractOutput,
     required this.translate,
   });
 
@@ -33,6 +35,7 @@ class ExceptionRules {
       extractFilter: List<RegExp>.from(json['extractFilter'] ?? []),
       key: json['key'] ?? '',
       keyWithVariable: json['keyWithVariable'] ?? '',
+      extractOutput: json['extractOutput'] ?? '',
       translate: json['translate'] ?? true,
     );
   }
@@ -47,11 +50,13 @@ class ExceptionRules {
       'extractFilter': extractFilter,
       'key': key,
       'keyWithVariable': keyWithVariable,
+      'extractOutput': extractOutput,
+      'translate': translate,
     };
   }
 
   factory ExceptionRules.fromSourceString(String source) {
-   // stderr.write(source);
+    // stderr.write(source);
     String? extractBalancedBracketContent(String source, String fieldName) {
       final startPattern = '$fieldName: [';
       final startIndex = source.indexOf(startPattern);
@@ -206,6 +211,7 @@ class ExceptionRules {
       import: _parseStringList('import'),
       key: _parseString('key'),
       keyWithVariable: _parseString('keyWithVariable'),
+      extractOutput: _parseString('extractOutput'),
       translate: _parseBool('translate'),
     );
   }
