@@ -8,16 +8,9 @@ Add the following to your `pubspec.yaml`:
 
 ```yaml
 dev_dependencies:
-  translate_gen: ^1.0.0
+  translate_gen: ^1.0.2
 ```
-or 
 
-```yaml
-dev_dependencies:
-  translate_gen:
-    git:
-      url: https://github.com/OmarMahmoud-alam/translate_gen.git
-```
 Run `flutter pub get` to install the package.
 
 ## Commands
@@ -154,7 +147,6 @@ After running the `prepare` command, the following structure is created:
 ```
 assets/
 └── translate_gen/
-    ├── en2.json
     ├── prepare.dart
     └── replace.json
 ```
