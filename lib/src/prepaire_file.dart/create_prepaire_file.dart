@@ -17,7 +17,7 @@ void createPrepaireFiles({String baseDir = '', String type = 'normal'}) async {
     final projectName = yaml['name'];
 
     final replaceFile = File(replacePath);
-    replaceFile.writeAsStringSync('{"projectName": "$projectName"}');
+    replaceFile.writeAsStringSync('{}');
     if (type != 'normal') {
       writeEasyLocalizationDartConfig(prepairePath, projectName);
     } else {
@@ -32,6 +32,7 @@ void createPrepaireFiles({String baseDir = '', String type = 'normal'}) async {
 void writeEasyLocalizationDartConfig(String path, String projectName) {
   final content = '''
 import 'package:translate_gen/src/extract/exception_rules.dart';
+import 'package:translate_gen/src/translate/translation_provider.dart';
 
 final translationConfig = ExceptionRules(
   textExceptions: ['import'],
@@ -51,6 +52,9 @@ final translationConfig = ExceptionRules(
   keyWithVariable: "LocaleKeys.{key}.tr(args: [{args}])",
   translate: true,
   extractOutput: 'replace.json',
+  geminiKey: '',
+    aiModel: TranslationProvider.deepseekR1,
+
 
 );
 ''';
@@ -61,6 +65,7 @@ final translationConfig = ExceptionRules(
 void writeNormalLocalizationDartConfig(String path) {
   final content = '''
 import 'package:translate_gen/src/extract/exception_rules.dart';
+import 'package:translate_gen/src/translate/translation_provider.dart';
 
 final translationConfig = ExceptionRules(
   textExceptions: ['import'],
@@ -78,6 +83,10 @@ final translationConfig = ExceptionRules(
   keyWithVariable:" s.current.{key}({args})", //not work in flutter_localization only in easy_localization
   translate: true,
  extractOutput: 'replace.json',
+   geminiKey: '',
+     aiModel: TranslationProvider.deepseekR1,
+
+
 
 );
 ''';

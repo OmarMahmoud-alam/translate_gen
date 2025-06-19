@@ -21,7 +21,7 @@ Future<void> main(List<String> args) async {
         rules: await Extract.loadExceptionRules(path),
         folderPath: path);
     await replace.process();
-    print('✅ Replaced stringsw in files at: $path');
+    print('✅ Replaced strings in files at: $path');
   } on GeneratorException catch (e) {
     exitWithError(e.message);
   } catch (e) {

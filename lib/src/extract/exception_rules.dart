@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:translate_gen/src/translate/translation_provider.dart';
 
 class ExceptionRules {
   List<String> textExceptions;
@@ -7,8 +10,10 @@ class ExceptionRules {
   List<String> import;
   List<RegExp> extractFilter;
   String key;
+  String geminiKey;
   String keyWithVariable;
   String extractOutput;
+  TranslationProvider aiModel;
   bool translate;
 
   ExceptionRules({
@@ -19,8 +24,10 @@ class ExceptionRules {
     required this.import,
     required this.extractFilter,
     required this.key,
+    required this.geminiKey,
     required this.keyWithVariable,
     required this.extractOutput,
+    required this.aiModel,
     required this.translate,
   });
 
@@ -33,8 +40,12 @@ class ExceptionRules {
       import: List<String>.from(json['import'] ?? []),
       extractFilter: List<RegExp>.from(json['extractFilter'] ?? []),
       key: json['key'] ?? '',
+      geminiKey: json['geminiKey'] ?? '',
       keyWithVariable: json['keyWithVariable'] ?? '',
       extractOutput: json['extractOutput'] ?? '',
+      aiModel: TranslationProvider.values.firstWhere(
+        (p) => p.name.toLowerCase() == json['aiModel'].toString().toLowerCase(),
+      ),
       translate: json['translate'] ?? true,
     );
   }
@@ -48,8 +59,10 @@ class ExceptionRules {
       'import': import,
       'extractFilter': extractFilter,
       'key': key,
+      'geminiKey': geminiKey,
       'keyWithVariable': keyWithVariable,
       'extractOutput': extractOutput,
+      'aiModel': aiModel,
       'translate': translate,
     };
   }
@@ -195,6 +208,21 @@ class ExceptionRules {
       return match?.group(2) ?? '';
     }
 
+    String parseStringEnum(String name) {
+      final regex = RegExp('$name:\\s*([\\w\\.]+)', dotAll: true);
+      final match = regex.firstMatch(source);
+      return match?.group(1) ?? '';
+    }
+
+    TranslationProvider parseEnumFromSource(String key,
+        {TranslationProvider fallback = TranslationProvider.gemini}) {
+      final value = parseStringEnum(key);
+      return TranslationProvider.values.firstWhere(
+        (e) => e.toString() == value,
+        orElse: () => fallback,
+      );
+    }
+
     bool parseBool(String name) {
       final regex = RegExp('$name:\\s*(true|false)', caseSensitive: false);
       final match = regex.firstMatch(source);
@@ -209,6 +237,8 @@ class ExceptionRules {
       extractFilter: parseRegExpList(),
       import: parseStringList('import'),
       key: parseString('key'),
+      aiModel: parseEnumFromSource('aiModel'),
+      geminiKey: parseString('geminiKey'),
       keyWithVariable: parseString('keyWithVariable'),
       extractOutput: parseString('extractOutput'),
       translate: parseBool('translate'),

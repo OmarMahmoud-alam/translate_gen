@@ -5,6 +5,9 @@ import 'package:translate_gen/src/extract/exception_rules.dart';
 import 'package:http/http.dart' as http;
 import 'package:analyzer/dart/analysis/utilities.dart';
 import 'package:analyzer/dart/ast/ast.dart';
+import 'package:translate_gen/src/span_print/span.dart';
+import 'package:translate_gen/src/translate/translation_provider.dart';
+import 'package:translate_gen/src/translate/translator_factory.dart';
 
 class Extract {
   String baseDir;
@@ -111,19 +114,67 @@ class Extract {
       List<String> strings) async {
     final map = <String, String>{};
 
+    // Clean and classify
+    final arabicList = <String>[];
+    final passthroughList = <String>[];
+
     for (final s in strings) {
       final str = s.trim().replaceAll(RegExp(r'''^['"]|['"]$'''), '');
-      String key;
-
-      if (_isArabic(str) && rules.translate) {
-        key = await translateWithGemini(str);
+      if (_isArabic(str) &&
+          rules.translate &&
+          (rules.aiModel != TranslationProvider.gemini ||
+              rules.geminiKey.isNotEmpty)) {
+        arabicList.add(str);
       } else {
-        key = str;
+        passthroughList.add(str);
       }
+    }
 
-      key = key.replaceAll(RegExp(r'\s+'), '_').toLowerCase();
+    // Step 1: Deduplicate
+    final uniqueArabic = arabicList.toSet().toList();
+
+    // Step 2: Translate in batches
+    const int batchSize = 12;
+    final uniqueTranslations = <String>[];
+    final spinner = Spinner("Translating'");
+    // spinner.start();
+    for (int i = 0; i < uniqueArabic.length; i += batchSize) {
+      final batch = uniqueArabic.sublist(
+        i,
+        i + batchSize > uniqueArabic.length
+            ? uniqueArabic.length
+            : i + batchSize,
+      );
+
+      final translator = TranslatorFactory.create(
+        provider: rules.aiModel,
+        apiKey: rules.geminiKey,
+      );
+
+      final result = await translator.translate(batch);
+      uniqueTranslations.addAll(result);
+    }
+
+    // Step 3: Build translation cache
+    final cache = <String, String>{};
+    for (int i = 0; i < uniqueTranslations.length; i++) {
+      final key =
+          uniqueTranslations[i].replaceAll(RegExp(r'\s+'), '_').toLowerCase();
+      cache[uniqueArabic[i]] = key;
+    }
+
+    // Step 4: Fill final map from original Arabic list (use cache)
+    for (final arabic in arabicList) {
+      final key = cache[arabic]!;
+      map[key] = arabic;
+    }
+
+    // Step 5: Add passthroughs
+    for (final str in passthroughList) {
+      final key = str.replaceAll(RegExp(r'\s+'), '_').toLowerCase();
       map[key] = str;
     }
+    spinner.stop();
 
     return map;
   }
@@ -146,70 +197,6 @@ class Extract {
     final combined = {...existing, ...translations};
 
     await file.writeAsString(JsonEncoder.withIndent('  ').convert(combined));
-  }
-
-  Future<String> _translateToEnglish(String text) async {
-    stderr.write('Translating "$text" to English...\n');
-    final uri = Uri.parse(
-        'https://api.mymemory.translated.net/get?q=$text&langpair=ar|en');
-    final response = await http.get(uri);
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final translated = data['responseData']['translatedText'] ?? text;
-      return generateShortKey2(translated);
-    } else {
-      //  stderr
-      //    .write('Translation failed for "$text"\n${response.body.toString()}');
-      print('Translation failed ${response.body.toString()}');
-      return (text);
-    }
-  }
-
-  final String apiKey = '';
-
-  Future<String> translateWithGemini(String text) async {
-    final uri = Uri.parse(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$apiKey',
-    );
-
-    final instruction = '''
-You are a tool that converts Arabic phrases into valid Flutter (Dart) variable names.
-
-Your task:
-- Translate the Arabic meaning to English
-- Convert it into a valid snake_case key (e.g., "Order Details" → order_details)
-- Do not return any special characters, numbers at the start, or spaces
-- Avoid Dart reserved words like "class", "new", etc.
-- Output only the variable name with no explanation.
-
-Arabic: $text
-''';
-
-    final payload = {
-      "contents": [
-        {
-          "role": "user",
-          "parts": [
-            {"text": instruction}
-          ]
-        }
-      ]
-    };
-
-    final response = await http.post(
-      uri,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(payload),
-    );
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final output = data['candidates'][0]['content']['parts'][0]['text'];
-      return output.trim();
-    } else {
-      print('Gemini translation failed: ${response.body}');
-      return text;
-    }
   }
 
   String generateShortKey2(String text) {
