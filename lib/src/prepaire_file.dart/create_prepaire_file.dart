@@ -53,8 +53,7 @@ final translationConfig = ExceptionRules(
   translate: true,
   extractOutput: 'replace.json',
   geminiKey: '',
-    aiModel: TranslationProvider.deepseekR1,
-
+  aiModel: TranslationProvider.deepseekR1,
 
 );
 ''';
