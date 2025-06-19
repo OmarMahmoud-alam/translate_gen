@@ -116,7 +116,7 @@ class Extract {
       String key;
 
       if (_isArabic(str) && rules.translate) {
-        key = await _translateToEnglish(str);
+        key = await translateWithGemini(str);
       } else {
         key = str;
       }
@@ -162,6 +162,53 @@ class Extract {
       //    .write('Translation failed for "$text"\n${response.body.toString()}');
       print('Translation failed ${response.body.toString()}');
       return (text);
+    }
+  }
+
+  final String apiKey = '';
+
+  Future<String> translateWithGemini(String text) async {
+    final uri = Uri.parse(
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$apiKey',
+    );
+
+    final instruction = '''
+You are a tool that converts Arabic phrases into valid Flutter (Dart) variable names.
+
+Your task:
+- Translate the Arabic meaning to English
+- Convert it into a valid snake_case key (e.g., "Order Details" → order_details)
+- Do not return any special characters, numbers at the start, or spaces
+- Avoid Dart reserved words like "class", "new", etc.
+- Output only the variable name with no explanation.
+
+Arabic: $text
+''';
+
+    final payload = {
+      "contents": [
+        {
+          "role": "user",
+          "parts": [
+            {"text": instruction}
+          ]
+        }
+      ]
+    };
+
+    final response = await http.post(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(payload),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final output = data['candidates'][0]['content']['parts'][0]['text'];
+      return output.trim();
+    } else {
+      print('Gemini translation failed: ${response.body}');
+      return text;
     }
   }
 
