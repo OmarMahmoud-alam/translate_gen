@@ -21,10 +21,10 @@
 - Add support for dynamic AI model switching
 - Optimize extraction performance for large codebases
 
-## 1.0.5
+## 1.0.6
 - Fix bugs and make client mustprovide his key for AI translation 
 
-## 1.0.6 (Future)
+## 1.0.7 (Future)
 - Add support for more AI translation providers
 - Implement translation caching for better performance
 - Add batch translation support for large files

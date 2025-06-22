@@ -8,7 +8,7 @@ Add the following to your `pubspec.yaml`:
 
 ```yaml
 dev_dependencies:
-  translate_gen: ^1.0.5
+  translate_gen: ^1.0.6
 ```
 
 Run `flutter pub get` to install the package.
@@ -128,7 +128,12 @@ final translationConfig = ExceptionRules(
 );
 ```
 
-**Note:** The `aiKey` field is only required when using `TranslationProvider.gemini`. You can leave it empty when using other AI models.
+> **Note:** The `aiKey` field is only required when using `TranslationProvider.gemini` and translation is enabled. You can leave it empty when using other AI models.
+
+## API Key Sources
+
+- **Gemini:** Get your API key from [Google AI Studio](https://aistudio.google.com/app/apikey)
+- **Other models:** Get your API key from [OpenRouter](https://openrouter.ai/settings/keys).
 
 ### 2. Extract Translatable Strings
 
