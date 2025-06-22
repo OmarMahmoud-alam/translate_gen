@@ -123,7 +123,7 @@ class Extract {
       if (_isArabic(str) &&
           rules.translate &&
           (rules.aiModel != TranslationProvider.gemini ||
-              rules.geminiKey.isNotEmpty)) {
+              rules.aiKey.isNotEmpty)) {
         arabicList.add(str);
       } else {
         passthroughList.add(str);
@@ -148,7 +148,7 @@ class Extract {
 
       final translator = TranslatorFactory.create(
         provider: rules.aiModel,
-        apiKey: rules.geminiKey,
+        apiKey: rules.aiKey,
       );
 
       final result = await translator.translate(batch);

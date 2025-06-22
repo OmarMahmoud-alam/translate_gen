@@ -52,7 +52,8 @@ final translationConfig = ExceptionRules(
   keyWithVariable: "LocaleKeys.{key}.tr(args: [{args}])",
   translate: true,
   extractOutput: 'replace.json',
-  geminiKey: '',
+  aiKey: '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',
+  //if translate is true you must provide your open router key Or gemini if you show gemini
   aiModel: TranslationProvider.deepseekR1,
 
 );
@@ -82,7 +83,8 @@ final translationConfig = ExceptionRules(
   keyWithVariable:" s.current.{key}({args})", //not work in flutter_localization only in easy_localization
   translate: true,
  extractOutput: 'replace.json',
-   geminiKey: '',
+  aiKey: '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',
+  //if translate is true you must provide your open router key Or gemini if you show gemini
      aiModel: TranslationProvider.deepseekR1,
 
 

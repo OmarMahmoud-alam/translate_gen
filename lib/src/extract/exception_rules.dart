@@ -10,7 +10,7 @@ class ExceptionRules {
   List<String> import;
   List<RegExp> extractFilter;
   String key;
-  String geminiKey;
+  String aiKey;
   String keyWithVariable;
   String extractOutput;
   TranslationProvider aiModel;
@@ -24,7 +24,7 @@ class ExceptionRules {
     required this.import,
     required this.extractFilter,
     required this.key,
-    required this.geminiKey,
+    required this.aiKey,
     required this.keyWithVariable,
     required this.extractOutput,
     required this.aiModel,
@@ -40,7 +40,7 @@ class ExceptionRules {
       import: List<String>.from(json['import'] ?? []),
       extractFilter: List<RegExp>.from(json['extractFilter'] ?? []),
       key: json['key'] ?? '',
-      geminiKey: json['geminiKey'] ?? '',
+      aiKey: json['aiKey'] ?? '',
       keyWithVariable: json['keyWithVariable'] ?? '',
       extractOutput: json['extractOutput'] ?? '',
       aiModel: TranslationProvider.values.firstWhere(
@@ -59,7 +59,7 @@ class ExceptionRules {
       'import': import,
       'extractFilter': extractFilter,
       'key': key,
-      'geminiKey': geminiKey,
+      'aiKey': aiKey,
       'keyWithVariable': keyWithVariable,
       'extractOutput': extractOutput,
       'aiModel': aiModel,
@@ -238,7 +238,7 @@ class ExceptionRules {
       import: parseStringList('import'),
       key: parseString('key'),
       aiModel: parseEnumFromSource('aiModel'),
-      geminiKey: parseString('geminiKey'),
+      aiKey: parseString('aiKey'),
       keyWithVariable: parseString('keyWithVariable'),
       extractOutput: parseString('extractOutput'),
       translate: parseBool('translate'),

@@ -8,7 +8,7 @@ Add the following to your `pubspec.yaml`:
 
 ```yaml
 dev_dependencies:
-  translate_gen: ^1.0.2
+  translate_gen: ^1.0.5
 ```
 
 Run `flutter pub get` to install the package.
@@ -61,7 +61,7 @@ final translationConfig = ExceptionRules(
   keyWithVariable: "LocaleKeys.{key}.tr(args: [{args}])",
   translate: true,
   extractOutput: 'replace.json',
-  geminiKey: '', // Required only when using TranslationProvider.gemini
+  aiKey: '', // Required only when using TranslationProvider.gemini
   aiModel: TranslationProvider.deepseekR1, // Available options: gemini, deepseekR1
 );
 ```
@@ -85,7 +85,7 @@ final translationConfig = ExceptionRules(
   keyWithVariable: "s.current.{key}({args})", //not work in flutter_localization only in easy_localization
   translate: true,
   extractOutput: 'replace.json',
-  geminiKey: '', // Required only when using TranslationProvider.gemini
+  aiKey: '', // Required only when using TranslationProvider.gemini
   aiModel: TranslationProvider.deepseekR1, // Available options: gemini, deepseekR1
 );
 ```
@@ -117,18 +117,18 @@ The package supports multiple AI translation providers:
 When using Google Gemini as your AI model, you must provide a valid API key:
 
 1. Set the `aiModel` to `TranslationProvider.gemini`
-2. Add your Gemini API key to the `geminiKey` field
+2. Add your Gemini API key to the `aiKey` field
 
 **Example configuration for Gemini:**
 ```dart
 final translationConfig = ExceptionRules(
   // ... other configuration ...
-  geminiKey: 'your-gemini-api-key-here',
+  aiKey: 'your-gemini-api-key-here',
   aiModel: TranslationProvider.gemini,
 );
 ```
 
-**Note:** The `geminiKey` field is only required when using `TranslationProvider.gemini`. You can leave it empty when using other AI models.
+**Note:** The `aiKey` field is only required when using `TranslationProvider.gemini`. You can leave it empty when using other AI models.
 
 ### 2. Extract Translatable Strings
 
@@ -200,7 +200,7 @@ assets/
 | `keyWithVariable` | `String` | Format for translation keys with variables |
 | `translate` | `bool` | Enable/disable automatic translation |
 | `extractOutput` | `String` | Output file for extracted strings |
-| `geminiKey` | `String` | API key for Gemini (required only for Gemini) |
+| `aiKey` | `String` | API key for Gemini (required only for Gemini) |
 | `aiModel` | `TranslationProvider` | AI model to use for translation |
 
 ## Notes
