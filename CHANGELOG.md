@@ -24,9 +24,9 @@
 ## 1.0.6
 - Fix bugs and make client mustprovide his key for AI translation 
 
-## 1.0.7 (Future)
-- Add support for more AI translation providers
+## 1.0.7 
 - Implement translation caching for better performance
+- Rename English By AI to EnglishKeyByAI 
 - Add batch translation support for large files
 - Improve regex patterns for better string detection
 - Add support for custom translation templates

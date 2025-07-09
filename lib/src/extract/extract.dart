@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:path/path.dart' as p;
 import 'package:translate_gen/src/extract/exception_rules.dart';
-import 'package:http/http.dart' as http;
 import 'package:analyzer/dart/analysis/utilities.dart';
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:translate_gen/src/span_print/span.dart';
@@ -116,7 +115,7 @@ class Extract {
 
     // Clean and classify
     final arabicList = <String>[];
-    final passthroughList = <String>[];
+    final englishList = <String>[];
 
     for (final s in strings) {
       final str = s.trim().replaceAll(RegExp(r'''^['"]|['"]$'''), '');
@@ -126,18 +125,25 @@ class Extract {
               rules.aiKey.isNotEmpty)) {
         arabicList.add(str);
       } else {
-        passthroughList.add(str);
+        englishList.add(str);
       }
     }
 
     // Step 1: Deduplicate
     final uniqueArabic = arabicList.toSet().toList();
+    final uniqueEnglish = englishList.toSet().toList();
 
     // Step 2: Translate in batches
     const int batchSize = 12;
-    final uniqueTranslations = <String>[];
+    final uniqueTranslationsarabic = <String>[];
+    final uniqueTranslationsenglish = <String>[];
     final spinner = Spinner("Translating'");
     // spinner.start();
+    // Step2: Translate in batches
+    final translator = TranslatorFactory.create(
+      provider: rules.aiModel,
+      apiKey: rules.aiKey,
+    );
     for (int i = 0; i < uniqueArabic.length; i += batchSize) {
       final batch = uniqueArabic.sublist(
         i,
@@ -146,34 +152,47 @@ class Extract {
             : i + batchSize,
       );
 
-      final translator = TranslatorFactory.create(
-        provider: rules.aiModel,
-        apiKey: rules.aiKey,
+      final result = await translator.translate(batch);
+      uniqueTranslationsarabic.addAll(result);
+    }
+    // Step2: convert english key in batches
+    for (int i = 0; i < uniqueEnglish.length; i += batchSize) {
+      final batch = uniqueEnglish.sublist(
+        i,
+        i + batchSize > uniqueEnglish.length
+            ? uniqueEnglish.length
+            : i + batchSize,
       );
 
-      final result = await translator.translate(batch);
-      uniqueTranslations.addAll(result);
+      final result = await translator.englishKey(batch);
+      uniqueTranslationsenglish.addAll(result);
     }
-
     // Step 3: Build translation cache
-    final cache = <String, String>{};
-    for (int i = 0; i < uniqueTranslations.length; i++) {
-      final key =
-          uniqueTranslations[i].replaceAll(RegExp(r'\s+'), '_').toLowerCase();
-      cache[uniqueArabic[i]] = key;
+    final cacheArabic = <String, String>{};
+    final cacheEnglish = <String, String>{};
+    for (int i = 0; i < uniqueTranslationsarabic.length; i++) {
+      final key = uniqueTranslationsarabic[i]
+          .replaceAll(RegExp(r'\s+'), '_')
+          .toLowerCase();
+      cacheArabic[uniqueArabic[i]] = key;
+    }
+    for (int i = 0; i < uniqueTranslationsenglish.length; i++) {
+      final key = uniqueTranslationsenglish[i]
+          .replaceAll(RegExp(r'\s+'), '_')
+          .toLowerCase();
+      cacheEnglish[uniqueEnglish[i]] = key;
     }
 
     // Step 4: Fill final map from original Arabic list (use cache)
     for (final arabic in arabicList) {
-      final key = cache[arabic]!;
+      final key = cacheArabic[arabic]!;
       map[key] = arabic;
     }
-
-    // Step 5: Add passthroughs
-    for (final str in passthroughList) {
-      final key = str.replaceAll(RegExp(r'\s+'), '_').toLowerCase();
-      map[key] = str;
+    for (final english in englishList) {
+      final key = cacheEnglish[english]!;
+      map[key] = english;
     }
+
     spinner.stop();
 
     return map;

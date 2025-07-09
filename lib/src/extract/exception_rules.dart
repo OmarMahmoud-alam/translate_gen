@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:translate_gen/src/translate/translation_provider.dart';
 

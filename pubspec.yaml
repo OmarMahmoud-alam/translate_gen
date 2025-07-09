@@ -1,6 +1,6 @@
 name: translate_gen
-description: Package provides tools to assist with translation tasks in Flutter projects, including preparing configuration files, extracting translatable strings, and replacing them based on a configuration.
-version: 1.0.6
+description: Tools to manage translations in Flutter':' extract strings, configure localization, and replace texts using config files.
+version: 1.0.7
 # repository: https://github.com/my_org/my_repo
 homepage: https://github.com/OmarMahmoud-alam/translate_gen
 repository: https://github.com/OmarMahmoud-alam/translate_gen
